@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2021 GPax Authors.
+# Copyright 2022 GPax Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 
 """Linen moduels for Gaussian Process."""
 
-from typing import Any, Callable, Optional, Sequence, Tuple
+from typing import Any, Callable, Optional, Tuple
 
 from flax.core import frozen_dict
 import flax.linen as nn
@@ -208,13 +208,15 @@ class GaussianProcess(nn.Module):
     gp, bijector = self._gp_and_bijector(inputs)
     return gp.posterior_predictive(bijector.inverse(ys))
 
-  def nll(self, datasets: Sequence[utils.SubDataset]) -> jnp.floating:
+  def nll(self, dataset: utils.Dataset) -> jnp.floating:
     return -jnp.sum(
-        jnp.asarray(
-            [self(dataset.x).log_prob(dataset.y) for dataset in datasets]))
+        jnp.asarray([
+            self(sub_dataset.x).log_prob(sub_dataset.y)
+            for sub_dataset in dataset
+        ]))
 
   def train(self,
-            datasets: Sequence[utils.SubDataset],
+            dataset: utils.Dataset,
             *,
             params: Optional[frozen_dict.FrozenDict] = frozen_dict.FrozenDict(),
             rng_key: Optional[jax.random.KeyArray] = None,
@@ -227,7 +229,7 @@ class GaussianProcess(nn.Module):
       gp.apply(..., method=gp.train)  # BAD
 
     Args:
-      datasets:
+      dataset:
       params: If provided, optimization starts from `params`.
       rng_key: Must be provided if `params` is not provided. Used for
         initializing model parameters.
@@ -236,13 +238,13 @@ class GaussianProcess(nn.Module):
     Returns:
       Tuned parameters.
     """
-    params = params or self.init(rng_key, datasets[0].x)
+    params = params or self.init(rng_key, dataset[0].x)
     tree = utils.ParamsTree(params)
 
     @jax.jit
     def loss_func(array):
       params = tree.todict(array)
-      return self.apply(params, datasets, method=self.nll)
+      return self.apply(params, dataset, method=self.nll)
 
     results = tfp.optimizer.lbfgs_minimize(
         jax.value_and_grad(loss_func),

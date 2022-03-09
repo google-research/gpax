@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2021 GPax Authors.
+# Copyright 2022 GPax Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """Common utils for GPax."""
-from typing import NamedTuple, Optional, Tuple, Union, Any
+from typing import NamedTuple, Optional, Tuple, Union, Any, Sequence
 
 from flax.core import frozen_dict
 import jax
@@ -30,6 +30,8 @@ class SubDataset(NamedTuple):
   x: jnp.ndarray
   y: jnp.ndarray
   aligned: Optional[Union[int, str, Tuple[str, ...]]] = None
+
+Dataset = Sequence[SubDataset]
 
 
 class ParamsTree:

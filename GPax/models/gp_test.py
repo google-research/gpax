@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2021 GPax Authors.
+# Copyright 2022 GPax Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,9 +32,9 @@ class GaussianProcessTest(absltest.TestCase):
 
   def test_fixed_inits(self):
 
-    key1, key2 = random.split(random.PRNGKey(0), 2)
+    key1, key2, key3 = random.split(random.PRNGKey(1), 3)
     xx = random.uniform(key1, (8, 5))
-    yy = random.uniform(key1, (8,))
+    yy = random.uniform(key2, (8,))
     kernel = functools.partial(
         gp.MaternFiveHalvesKernel,
         amplitude_init=utils.constant_initializer_factory(1.),
@@ -55,7 +55,7 @@ class GaussianProcessTest(absltest.TestCase):
         feature_module_gen=EightFeatures,
         observation_noise_variance_init=utils.constant_initializer_factory(
             np.exp(-4)))
-    params = model.init(key2, xx)
+    params = model.init(key3, xx)
 
     @jax.jit
     def nll(params):
@@ -156,7 +156,7 @@ class GaussianProcessTest(absltest.TestCase):
   def test_inference(self):
     key1 = random.PRNGKey(0)
     key1_replica = random.PRNGKey(0)
-    datasets = [
+    dataset = [
         utils.SubDataset(
             random.uniform(key1, (8, 5)), random.uniform(key1, (8,))),
         utils.SubDataset(
@@ -164,17 +164,17 @@ class GaussianProcessTest(absltest.TestCase):
     ]
 
     model = gp.GaussianProcess()
-    params = model.init(key1, datasets[0].x)
-    nll_before = model.apply(params, datasets, method=model.nll)
+    params = model.init(key1, dataset[0].x)
+    nll_before = model.apply(params, dataset, method=model.nll)
 
-    params = model.train(datasets, rng_key=key1_replica, steps=5)
-    nll_after = model.apply(params, datasets, method=model.nll)
+    params = model.train(dataset, rng_key=key1_replica, steps=5)
+    nll_after = model.apply(params, dataset, method=model.nll)
     self.assertLessEqual(nll_after, nll_before)
 
-    dist = model.apply(params, datasets[0].x)
+    dist = model.apply(params, dataset[0].x)
     self.assertEmpty(dist.batch_shape)
-    self.assertEqual(dist.event_shape, datasets[0].y.shape)
-    self.assertEmpty(dist.log_prob(datasets[0].y).shape)
+    self.assertEqual(dist.event_shape, dataset[0].y.shape)
+    self.assertEmpty(dist.log_prob(dataset[0].y).shape)
 
 
 class MultiTaskGaussianProcessTest(absltest.TestCase):

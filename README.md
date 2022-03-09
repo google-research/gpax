@@ -17,7 +17,7 @@ pip install "git+https://github.com/google/gpax.git#egg=gpax"
 ```
 
 ## Usage
-See example colab.
+See tests.
 
 ## Citing
 ```
