@@ -25,7 +25,7 @@ import jax.numpy as jnp
 import tensorflow_probability.substrates.jax as tfp
 
 tfd = tfp.distributions
-tfsd = tfp.staging.distributions
+tfed = tfp.experimental.distributions
 
 Array = Any  # Array can be in many different forms (nested, np/jnp).
 ArrayMap = Callable[[Array], Array]
@@ -260,7 +260,8 @@ class MultiTaskKernel(nn.Module):
   kernel_module_gen: Callable[[], nn.Module] = MaternFiveHalvesKernel
 
   @nn.compact
-  def __call__(self, inputs: Array) -> tfp.staging.psd_kernels.MultiTaskKernel:
+  def __call__(self, inputs: Array) -> (
+      tfp.experimental.psd_kernels.MultiTaskKernel):
     """Call.
 
     Let B = batch size, F = number of features, T = number of tasks.
@@ -271,8 +272,8 @@ class MultiTaskKernel(nn.Module):
     Returns:
       PSD kernel over T tasks.
     """
-    return tfp.staging.psd_kernels.Independent(self.num_tasks,
-                                               self.kernel_module_gen()(inputs))
+    return tfp.experimental.psd_kernels.Independent(
+        self.num_tasks, self.kernel_module_gen()(inputs))
 
 
 class MultiTaskGaussianProcess(nn.Module):
@@ -288,13 +289,13 @@ class MultiTaskGaussianProcess(nn.Module):
   """
   num_tasks: int
   kernel_module_gen: Callable[[int], Callable[
-      [Array], tfp.staging.psd_kernels.MultiTaskKernel]] = MultiTaskKernel
+      [Array], tfp.experimental.psd_kernels.MultiTaskKernel]] = MultiTaskKernel
 
   def setup(self):
     self.kernel_module = self.kernel_module_gen(self.num_tasks)
     self.mean_fn = nn.Dense(self.num_tasks)
 
-  def __call__(self, inputs: Array) -> tfsd.MultiTaskGaussianProcess:
+  def __call__(self, inputs: Array) -> tfed.MultiTaskGaussianProcess:
     """Call.
 
     Let B = batch size, F = number of features, T = number of tasks.
@@ -307,12 +308,12 @@ class MultiTaskGaussianProcess(nn.Module):
 
     inputs = jnp.asarray(inputs)
     mean_fn = self.mean_fn([[0]]).reshape([-1])
-    return tfsd.MultiTaskGaussianProcess(
+    return tfed.MultiTaskGaussianProcess(
         self.kernel_module(inputs), inputs, mean_fn=lambda _: mean_fn)
 
   def cache_cholesky(
       self, inputs: Array,
-      ys: Array) -> tfsd.MultiTaskGaussianProcessRegressionModelWithCholesky:
+      ys: Array) -> tfed.MultiTaskGaussianProcessRegressionModel:
     """Returns the posterior predictive distribution.
 
     Let B = batch size, F = number of features, T = number of tasks.
@@ -327,5 +328,5 @@ class MultiTaskGaussianProcess(nn.Module):
     """
     inputs = jnp.asarray(inputs)
     mean_fn = self.mean_fn([[0]]).reshape([-1])
-    return tfsd.MultiTaskGaussianProcessRegressionModelWithCholesky(
+    return tfed.MultiTaskGaussianProcessRegressionModel.precompute_regression_model(
         self.kernel_module(inputs), inputs, ys, mean_fn=lambda _: mean_fn)
