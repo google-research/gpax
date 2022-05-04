@@ -1,7 +1,7 @@
 # GPax
-A Jax/Flax codebase for Gaussian processes including meta and multi-task Gaussian processes.
+A codebase for Gaussian processes in Jax. Implemented models include vanilla Gaussian processes as well as meta and multi-task Gaussian processes.
 
-The model was originally developed for *[Pre-training helps Bayesian optimization too](https://ziw.mit.edu/pub/hyperbo.pdf)*, but can be used as example code or building blocks for Gaussian processes in Jax/Flax.
+The model was originally developed for *[Pre-training helps Bayesian optimization too](https://ziw.mit.edu/pub/hyperbo.pdf)*, but can be used as example code or building blocks for Gaussian processes in Jax/Flax and Tensorflow Probability.
 
 Disclaimer: This is not an officially supported Google product.
 
