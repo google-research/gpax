@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2022 GPax Authors.
+# Copyright 2023 GPax Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Acquisition functions."""
+"""Acquisition functions for Bayesian optimization."""
 
 import abc
 import enum
