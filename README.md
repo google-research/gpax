@@ -1,7 +1,7 @@
 # GPax
 A codebase for Gaussian processes in Jax. Implemented models include vanilla Gaussian processes as well as meta and multi-task Gaussian processes.
 
-The model was originally developed for *[Pre-training helps Bayesian optimization too](https://ziw.mit.edu/pub/hyperbo.pdf)*, but can be used as example code or building blocks for Gaussian processes in Jax/Flax and Tensorflow Probability.
+The model was originally developed for *[Pre-trained Gaussian processes for Bayesian optimization](https://arxiv.org/abs/2109.08215)*, but can be used as example code or building blocks for Gaussian processes in Jax/Flax and Tensorflow Probability.
 
 Disclaimer: This is not an officially supported Google product.
 
@@ -19,12 +19,20 @@ pip install "git+https://github.com/google-research/gpax.git#egg=gpax"
 ## Usage
 See tests.
 
-## Citing
+## Citation
+Please cite our work if you would like to use the code.
 ```
-@article{wang2021hyperbo,
-  title={Pre-training helps Bayesian optimization too},
-  author={Wang, Zi and Dahl, George E and Swersky, Kevin and Lee, Chansoo and Mariet, Zelda and Nado, Zachary and Gilmer, Justin and Snoek, Jasper and Ghahramani, Zoubin},
+@article{wang2023hyperbo,
+  title={{Pre-trained Gaussian processes for Bayesian optimization}},
+  author={Zi Wang and
+          George E. Dahl and
+          Kevin Swersky and
+          Chansoo Lee and
+          Zachary Nado and
+          Justin Gilmer and
+          Jasper Snoek and
+          Zoubin Ghahramani},
   journal={arXiv preprint arXiv:2109.08215},
-  year={2022}
+  year={2023}
 }
 ```
