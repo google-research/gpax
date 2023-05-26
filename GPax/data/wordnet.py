@@ -25,8 +25,8 @@ def get_dag(words, prune=True):
   """Constructs the WordNet dag.
 
   Args:
-    words: The sinks of the graph (https://www.nltk.org/howto/wordnet.html).
-    prune: Prune half-nodes from the graph.
+    words: The sinks of the dag (https://www.nltk.org/howto/wordnet.html).
+    prune: Prune half-nodes from the dag.
 
   Returns:
     A directed acyclic graph.
@@ -52,9 +52,10 @@ def get_dag(words, prune=True):
   return nx.freeze(dag)
 
 
-def get_sinks(dag):
+def get_sinks(dag, source=None):
   """Returns the sinks of a dag."""
-  return [n for n, d in dag.out_degree() if d == 0]
+  nodes = None if source is None else nx.dfs_preorder_nodes(dag, source)
+  return [n for n, d in dag.out_degree(nodes) if d == 0]
 
 
 def get_lca(dag, nodes=None):
