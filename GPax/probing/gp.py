@@ -313,11 +313,6 @@ def gp_predict(
   )
   mu = jnp.dot(cov_observed_query.T, kinvy) + mu_query
   v = jspla.solve_triangular(chol, cov_observed_query, lower=True)
-  if predict_weight:
-    phi = get_cosine_phi(params, x_observed, warp_func=warp_func)  # n x d
-    u = jnp.dot(phi.T, kinvy)
-    sig = jspla.solve_triangular(chol, phi, lower=True)
-    sig = jnp.diag(jnp.ones((phi.shape[1],))) - jnp.dot(sig.T, sig)
   if var_only:
     diagdot = jax.vmap(lambda x: jnp.dot(x, x.T))
     var = cov_query - diagdot(v.T)
@@ -325,6 +320,10 @@ def gp_predict(
   else:
     cov = cov_query - jnp.dot(v.T, v)
   if predict_weight:
+    phi = get_cosine_phi(params, x_observed, warp_func=warp_func)  # n x d
+    u = jnp.dot(phi.T, kinvy)
+    sig = jspla.solve_triangular(chol, phi, lower=True)
+    sig = jnp.diag(jnp.ones((phi.shape[1],))) - jnp.dot(sig.T, sig)
     return mu, cov, u, sig
   return mu, cov
 
