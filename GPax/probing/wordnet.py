@@ -13,16 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""WordNet utilities.
+"""Construct the WordNet hierarchy with NLTK and NetworkX.
 
 """
 
 import networkx as nx
-from nltk.corpus import wordnet as wn
+from nltk.corpus import wordnet as wn  # pylint: disable=g-importing-member
 
 
 def get_dag(words, prune=True):
-  """Constructs the WordNet dag.
+  """Constructs a dag that represents the WordNet hierarchy.
 
   Args:
     words: The sinks of the dag (https://www.nltk.org/howto/wordnet.html).

@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for WordNet utilities."""
+"""Tests for wordnet."""
 
 from absl.testing import absltest
 from absl.testing import parameterized
-from gpax.data import wordnet
+from gpax.probing import wordnet
 import networkx as nx
 
 

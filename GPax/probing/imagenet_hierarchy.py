@@ -13,19 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""ImageNet utilities.
+"""Construct superclasses from the ImageNet hierarchy.
 
 
 >>> import tensorflow_datasets as tfds
 >>> import tensorflow as tf
 >>> ds = tfds.load(name='imagenet2012', split='train')
 >>> ds = ds.prefetch(tf.data.AUTOTUNE)
->>> dag = get_dag()
->>> cat_labels = imagenet.superclass_labels(dag, 'cat.n.01')
->>> cat_ds = imagenet.get_superclass_dataset(ds, cat_labels)
+>>> dag = wordnet.get_dag(imagenet_hierarchy.IMAGENET_SYNSETS)
+>>> cat_classes = imagenet_hierarchy.get_superclass_classes(dag, 'cat.n.01')
+>>> cat_ds = imagenet_hierarchy.get_superclass_dataset(ds, cat_classes)
 """
 
-from gpax.data import wordnet
+from gpax.probing import wordnet
 import tensorflow as tf
 
 IMAGENET_SYNSETS = [
@@ -1032,21 +1032,16 @@ IMAGENET_SYNSETS = [
 ]
 
 
-def get_dag():
-  return wordnet.get_dag(IMAGENET_SYNSETS)
-
-
-def get_superclass_labels(dag, node_or_nodes, complement=False):
-  """Returns the list of labels that represent the superclass.
+def get_superclass_classes(dag, node_or_nodes, complement=False):
+  """Returns a list of classes that represent the superclass.
 
   Args:
-    dag: The WordNet dag where sinks are ImageNet classes.
-    node_or_nodes: Node or nodes in the dag that represent the superclass.
-    complement: Wether to return the ImageNet labels that represent the
-      complement of the superclass.
+    dag: A dag where the sinks are ImageNet classes.
+    node_or_nodes: Nodes in the dag that represent the superclass.
+    complement: Wether to return the complement of the superclass.
 
   Returns:
-    The list of labels that represent the superclass.
+    A list of classes that represent the superclass.
   """
   nodes = [node_or_nodes] if isinstance(node_or_nodes, str) else node_or_nodes
   labels = {  # pylint: disable=g-complex-comprehension
@@ -1059,7 +1054,7 @@ def get_superclass_labels(dag, node_or_nodes, complement=False):
   return sorted(labels)
 
 
-def get_superclass_dataset(ds, superclass_labels):
+def get_superclass_dataset(ds, superclass_classes):
   return ds.filter(
-      lambda x: tf.reduce_any(tf.equal(x['label'], superclass_labels))
+      lambda x: tf.reduce_any(tf.equal(x['label'], superclass_classes))
   )
