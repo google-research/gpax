@@ -128,6 +128,27 @@ def laplace_kernel(params, x1, x2, warp_func=None):
 
 
 @covariance_matrix
+def additive_laplace_kernel(params, x1, x2, warp_func=None):
+  """Squared exponential kernel: Eq.(4.9/13) of GPML book.
+
+  Args:
+    params: parameters for the kernel.
+    x1: a d-diemnsional vector that represent a single datapoint.
+    x2: a d-diemnsional vector that represent a single datapoint that can be the
+      same as or different from x1.
+    warp_func: optional dictionary that specifies the warping function for each
+      parameter.
+
+  Returns:
+    The kernel function evaluation on x1 and x2.
+  """
+  params_keys = ['lengthscale', 'signal_variance']
+  lengthscale, signal_variance = retrieve_params(params, params_keys, warp_func)
+  r1 = jnp.abs(x1 - x2) / lengthscale
+  return jnp.squeeze(signal_variance) * jnp.sum(jnp.exp(-r1))
+
+
+@covariance_matrix
 def squared_exponential_sphere_kernel(params, x1, x2, warp_func=None):
   """Squared exponential kernel on sphere distance.
 
