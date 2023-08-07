@@ -114,3 +114,15 @@ def maha(x_query, x_observed=None, y_observed=None):
   dist0 = np.sum(np.dot(delta0, cov) * delta0, axis=1)
   dist1 = np.sum(np.dot(delta1, cov) * delta1, axis=1)
   return {'episteme': -np.min([dist0, dist1], axis=0)}
+
+
+def deep_nearest_neighbor(x_query, x_observed=None, y_observed=None):
+  """Deep nearest neighbor score https://arxiv.org/pdf/2204.06507.pdf."""
+  del y_observed
+  k = len(x_query) // 2
+  delta = x_query / np.linalg.norm(
+      x_query, axis=1, keepdims=True
+  ) - x_observed / np.linalg.norm(x_observed, axis=1, keepdims=True)
+  dist = np.linalg.norm(delta, axis=1)
+  sorted_dist = np.sort(dist)
+  return {'episteme': -sorted_dist[k]}
