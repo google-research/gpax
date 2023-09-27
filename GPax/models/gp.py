@@ -209,7 +209,7 @@ class GaussianProcess(nn.Module):
     return gp.posterior_predictive(bijector.inverse(ys))
 
   def nll(self, dataset: utils.Dataset) -> jnp.floating:
-    return -jnp.sum(
+    return -jnp.sum(  # pytype: disable=bad-return-type  # jnp-type
         jnp.asarray([
             self(sub_dataset.x).log_prob(sub_dataset.y)
             for sub_dataset in dataset
