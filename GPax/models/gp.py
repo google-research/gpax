@@ -219,7 +219,7 @@ class GaussianProcess(nn.Module):
             dataset: utils.Dataset,
             *,
             params: Optional[frozen_dict.FrozenDict] = frozen_dict.FrozenDict(),
-            rng_key: Optional[jax.random.KeyArray] = None,
+            rng_key: Optional[jax.Array] = None,
             steps: int = 100) -> frozen_dict.FrozenDict:
     """Inference.
 
