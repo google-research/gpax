@@ -22,8 +22,39 @@ import sklearn.linear_model as sklm
 
 
 @jax.jit
-def gpp(x_query, x_observed=None, y_observed=None, alpha_eps=0.1, strength=5.0):
-  """GPP."""
+def gpp(
+    x_query,
+    x_observed=None,
+    y_observed=None,
+    alpha_eps=0.1,
+    strength=5.0,
+    n=int(1e5),
+    seed=0,
+):
+  """Probing model representations with GPP.
+
+  Details in the GPP paper: https://arxiv.org/pdf/2305.18213.pdf.
+
+  Args:
+    x_query: n' x d input array to be queried.
+    x_observed: observed n x d input array. Set to None if no observations.
+    y_observed: observed n x 1 evaluations on the input x_observed. Each element
+      must be 0 or 1. Set to None if no observations.
+    alpha_eps: the episilon parameter in the Beta prior, i.e., the prior for
+      classification is Beta(alpha_eps, alpha_eps), which is then approximated
+      using log normal distributions. See Fig 9 in the GPP paper for
+      visualization of prior approximation. For example, if the prior you'd like
+      to set is Beta(1,1), you can set alpha_eps to be 0.5 to have a better
+      approximation.
+    strength: the s parameter in posterior inference, which defines how much you
+      believe the observation matters. See Figure 10 and 11 of the GPP paper for
+      insights on how to set it.
+    n: number of samples for Monte Carlo estimation.
+    seed: int random seed for Monte Carlo estimation.
+
+  Returns:
+    Dictionary mapping from name to measures of uncertainty.
+  """
   mean_func = gp.constant_mean
   cov_func = gp.cosine_kernel
   params = {
@@ -38,13 +69,23 @@ def gpp(x_query, x_observed=None, y_observed=None, alpha_eps=0.1, strength=5.0):
       y_observed=y_observed[:, None] if y_observed is not None else None,
       params=params,
   )
-  measures = gp.beta_gp_uncertainty(predictions)
+  measures = gp.beta_gp_uncertainty(predictions, seed=seed, n=n)
   return jax.tree_map(lambda x: x[:, 0], measures)
 
 
 @jax.jit
 def gpr(x_query, x_observed=None, y_observed=None):
-  """GPR."""
+  """GP regression for classification with a default params (see below).
+  
+  Args:
+    x_query: n' x d input array to be queried.
+    x_observed: observed n x d input array. Set to None if no observations.
+    y_observed: observed n x 1 evaluations on the input x_observed. Each element
+      must be 0 or 1. Set to None if no observations.
+  
+  Returns:
+    Dictionary mapping from name to measures of uncertainty.
+  """
   mean_func = gp.constant_mean
   cov_func = gp.cosine_kernel
   params = {
@@ -66,7 +107,18 @@ def gpr(x_query, x_observed=None, y_observed=None):
 
 
 def lpe(x_query, x_observed=None, y_observed=None, repeats=int(1e2)):
-  """Linear probe ensemble."""
+  """Linear probe ensemble using bootstrap.
+  
+  Args:
+    x_query: n' x d input array to be queried.
+    x_observed: observed n x d input array. Set to None if no observations.
+    y_observed: observed n x 1 evaluations on the input x_observed. Each element
+      must be 0 or 1. Set to None if no observations.
+    repeats: number of ensemble members.
+  
+  Returns:
+    Dictionary mapping from name to measures of uncertainty.
+  """
   p_samples = []
   pos_idx = np.where(y_observed)[0]
   neg_idx = np.where(y_observed == 0)[0]
@@ -88,6 +140,7 @@ def lpe(x_query, x_observed=None, y_observed=None, repeats=int(1e2)):
 
 
 def lp_maxprob(x_query, x_observed=None, y_observed=None):
+  """Maximum predicted probability for OOD detection."""
   cls = sklm.LogisticRegression().fit(x_observed, y_observed)
   cls_p = cls.predict_proba(x_query)[:, 1]
   return {'episteme': np.max([cls_p, 1 - cls_p], axis=0)}
