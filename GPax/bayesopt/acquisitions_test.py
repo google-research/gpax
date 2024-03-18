@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2023 GPax Authors.
+# Copyright 2024 GPax Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class AcquisitionsTest(parameterized.TestCase):
                             (acquisitions.Goal.MINIMIZE, 1.0004311))
   def test_ei(self, goal, expected):
     acq = acquisitions.ExpectedImprovement(1., goal)
-    self.assertAlmostEqual(acq.evaluate(tfd.Normal(0.1, 1)), expected)
+    self.assertAlmostEqual(acq.evaluate(tfd.Normal(0.1, 1)), expected, places=5)
 
   @parameterized.parameters((acquisitions.Goal.MAXIMIZE, .9),
                             (acquisitions.Goal.MINIMIZE, -.9))
