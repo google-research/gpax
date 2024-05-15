@@ -70,7 +70,7 @@ def gpp(
       params=params,
   )
   measures = gp.beta_gp_uncertainty(predictions, seed=seed, n=n)
-  return jax.tree_map(lambda x: x[:, 0], measures)
+  return jax.tree.map(lambda x: x[:, 0], measures)
 
 
 @jax.jit
@@ -103,7 +103,7 @@ def gpr(x_query, x_observed=None, y_observed=None):
       params=params,
   )
   measures = gp.gp_uncertainty(mu, var)
-  return jax.tree_map(lambda x: x[:, 0], measures)
+  return jax.tree.map(lambda x: x[:, 0], measures)
 
 
 def lpe(x_query, x_observed=None, y_observed=None, repeats=int(1e2)):
@@ -136,7 +136,7 @@ def lpe(x_query, x_observed=None, y_observed=None, repeats=int(1e2)):
     p_samples.append(cls_p)
   p_samples = np.array(p_samples).T  # num_inputs x n
   measures = gp.classifier_samples_uncertainty(p_samples, True)
-  return jax.tree_map(lambda x: x[:, 0], measures)
+  return jax.tree.map(lambda x: x[:, 0], measures)
 
 
 def lp_maxprob(x_query, x_observed=None, y_observed=None):
