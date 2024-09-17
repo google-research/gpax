@@ -435,7 +435,7 @@ def beta_gp_predict(
 def get_logistic_quantiles(mu, var, q):
   """Get the median and (q, 1-q) quantiles for logistic transform."""
   y = 1 / (1 + jnp.exp(-mu))
-  quantiles = jsp.stats.norm.ppf([q, 1 - q], loc=mu, scale=jnp.sqrt(var))
+  quantiles = jsp.stats.norm.ppf([q, 1 - q], loc=mu, scale=jnp.sqrt(var))  # pytype: disable=wrong-arg-types
   quantiles = 1 / (1 + jnp.exp(-quantiles))
   return y, quantiles
 
@@ -765,7 +765,7 @@ def get_probit_quantiles(mu, var, q):
   """Get the median and (q, 1-q) quantiles for cumulative Gaussian transform."""
   y = jsp.stats.norm.cdf(mu.flatten())
   quantiles = jsp.stats.norm.cdf(
-      jsp.stats.norm.ppf(
+      jsp.stats.norm.ppf(  # pytype: disable=wrong-arg-types
           [q, 1 - q], loc=mu / jnp.sqrt(var + 1), scale=jnp.sqrt(var)
       )
   )
